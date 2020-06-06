@@ -2,7 +2,6 @@ package ru.volnenko.se.service;
 
 import ru.volnenko.se.api.repository.IProjectRepository;
 import ru.volnenko.se.entity.Project;
-import ru.volnenko.se.repository.ProjectRepository;
 
 import java.util.Collection;
 import java.util.List;

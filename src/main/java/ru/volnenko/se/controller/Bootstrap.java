@@ -9,11 +9,6 @@ import ru.volnenko.se.api.service.ServiceLocator;
 import ru.volnenko.se.command.*;
 import ru.volnenko.se.error.CommandAbsentException;
 import ru.volnenko.se.error.CommandCorruptException;
-import ru.volnenko.se.repository.ProjectRepository;
-import ru.volnenko.se.repository.TaskRepository;
-import ru.volnenko.se.service.DomainService;
-import ru.volnenko.se.service.ProjectService;
-import ru.volnenko.se.service.TaskService;
 
 import java.util.*;
 
@@ -22,15 +17,15 @@ import java.util.*;
  */
 public final class Bootstrap implements ServiceLocator {
 
-    private final ITaskRepository taskRepository = new TaskRepository();
+    private ITaskRepository taskRepository;
 
-    private final IProjectRepository projectRepository = new ProjectRepository();
+    private IProjectRepository projectRepository;
 
-    private final IProjectService projectService = new ProjectService(projectRepository);
+    private IProjectService projectService;
 
-    private final ITaskService taskService = new TaskService(taskRepository, projectRepository);
+    private ITaskService taskService;
 
-    private final IDomainService domainService = new DomainService(this);
+    private IDomainService domainService;
 
     private final Map<String, AbstractCommand> commands = new LinkedHashMap<>();
 
@@ -56,12 +51,31 @@ public final class Bootstrap implements ServiceLocator {
         return domainService;
     }
 
+    public void setTaskRepository(ITaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
+
+    public void setProjectRepository(IProjectRepository projectRepository) {
+        this.projectRepository = projectRepository;
+    }
+
+    public void setProjectService(IProjectService projectService) {
+        this.projectService = projectService;
+    }
+
+    public void setTaskService(ITaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    public void setDomainService(IDomainService domainService) {
+        this.domainService = domainService;
+    }
+
     public void registry(final AbstractCommand command) {
         final String cliCommand = command.command();
         final String cliDescription = command.description();
         if (cliCommand == null || cliCommand.isEmpty()) throw new CommandCorruptException();
         if (cliDescription == null || cliDescription.isEmpty()) throw new CommandCorruptException();
-        command.setBootstrap(this);
         commands.put(cliCommand, command);
     }
 
@@ -79,6 +93,12 @@ public final class Bootstrap implements ServiceLocator {
     public void init(final Class... classes) throws Exception {
         if (classes == null || classes.length == 0) throw new CommandAbsentException();
         registry(classes);
+        start();
+    }
+    
+    public void init(final Collection<AbstractCommand> commands) throws Exception {
+        if (commands == null || commands.isEmpty()) throw new CommandAbsentException();
+        commands.forEach(this::registry);
         start();
     }
 

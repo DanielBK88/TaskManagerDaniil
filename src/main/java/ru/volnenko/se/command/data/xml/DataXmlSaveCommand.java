@@ -13,7 +13,7 @@ import java.nio.file.Files;
 /**
  * @author Denis Volnenko
  */
-public final class DataXmlSaveCommand extends AbstractCommand {
+public class DataXmlSaveCommand extends AbstractCommand {
 
     @Override
     public String command() {
@@ -25,10 +25,12 @@ public final class DataXmlSaveCommand extends AbstractCommand {
         return "Save Domain to XML.";
     }
 
+    private Domain domain;
+    
     @Override
     public void execute() throws Exception {
         System.out.println("[DATA XML SAVE]");
-        final Domain domain = new Domain();
+        final Domain domain = getDomain();
         bootstrap.getDomainService().export(domain);
         final ObjectMapper objectMapper = new XmlMapper();
         final ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
@@ -39,4 +41,7 @@ public final class DataXmlSaveCommand extends AbstractCommand {
         System.out.println("[OK]");
     }
 
+    public Domain getDomain() {
+        return null; // To be overridden by Spring
+    }
 }

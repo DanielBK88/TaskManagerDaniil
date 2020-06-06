@@ -7,13 +7,14 @@ import java.util.*;
 /**
  * @author Denis Volnenko
  */
-public final class TaskRepository implements ru.volnenko.se.api.repository.ITaskRepository {
+public class TaskRepository implements ru.volnenko.se.api.repository.ITaskRepository {
 
     private final Map<String, Task> map = new LinkedHashMap<>();
 
     @Override
     public Task createTask(final String name) {
-        final Task task = new Task();
+        final Task task = getTask();
+        System.out.println("Created task hashcode = " + task.hashCode());
         task.setName(name);
         merge(task);
         return task;
@@ -81,6 +82,10 @@ public final class TaskRepository implements ru.volnenko.se.api.repository.ITask
     @Override
     public void clear() {
         map.clear();
+    }
+    
+    protected Task getTask() {
+        return null; // To be overridden by Spring
     }
 
 }

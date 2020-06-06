@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/util 
+   		     http://www.springframework.org/schema/util/spring-util.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+  <context:annotation-config/>
+  
+  <!-- core -->
+  <bean id="bootstrap" class="ru.volnenko.se.controller.Bootstrap">
+    <property name="taskRepository" ref="taskRepository"/>
+    <property name="projectRepository" ref="projectRepository"/>
+    <property name="taskService" ref="taskService"/>
+    <property name="projectService" ref="projectService"/>
+    <property name="domainService" ref="domainService"/>
+  </bean>
+  
+  <bean id="taskRepository" class="ru.volnenko.se.repository.TaskRepository">
+    <lookup-method name="getTask" bean="task"/>
+  </bean>
+  
+  <bean id="projectRepository" class="ru.volnenko.se.repository.ProjectRepository">
+    <lookup-method name="getProject" bean="project"/>
+  </bean>
+  
+  <bean id="projectService" class="ru.volnenko.se.service.ProjectService">
+    <constructor-arg ref="projectRepository"/>
+  </bean>
+  
+  <bean id="taskService" class="ru.volnenko.se.service.TaskService">
+    <constructor-arg ref="taskRepository"/>
+    <constructor-arg ref="projectRepository"/>
+  </bean>
+  
+  <bean id="domainService" class="ru.volnenko.se.service.DomainService">
+    <constructor-arg ref="bootstrap"/>
+  </bean>
+  
+  <bean id="project" class="ru.volnenko.se.entity.Project" scope="prototype"/>
+  <bean id="task" class="ru.volnenko.se.entity.Task" scope="prototype"/>
+  <bean id="domain" class="ru.volnenko.se.entity.Domain" scope="prototype"/>
+  
+  <util:set id="commands" value-type="ru.volnenko.se.command.AbstractCommand">
+    <bean id="helpCommand" class="ru.volnenko.se.command.system.HelpCommand"/>
+    <bean id="binaryClearCommand" class="ru.volnenko.se.command.data.bin.DataBinaryClearCommand"/>
+    <bean id="binaryLoadCommand" class="ru.volnenko.se.command.data.bin.DataBinaryLoadCommand"/>
+    <bean id="binarySaveCommand" class="ru.volnenko.se.command.data.bin.DataBinarySaveCommand"/>
+    <bean id="jsonClearCommand" class="ru.volnenko.se.command.data.json.DataJsonClearCommand"/>
+    <bean id="jsonLoadCommand" class="ru.volnenko.se.command.data.json.DataJsonLoadCommand"/>
+    <bean id="jsonSaveCommand" class="ru.volnenko.se.command.data.json.DataJsonSaveCommand">
+      <lookup-method name="getDomain" bean="domain"/>
+    </bean>
+    <bean id="xmlClearCommand" class="ru.volnenko.se.command.data.xml.DataXmlClearCommand"/>
+    <bean id="xmlLoadCommand" class="ru.volnenko.se.command.data.xml.DataXmlLoadCommand"/>
+    <bean id="xmlSaveCommand" class="ru.volnenko.se.command.data.xml.DataXmlSaveCommand">
+      <lookup-method name="getDomain" bean="domain"/>
+    </bean>
+    <bean id="projectClearCommand" class="ru.volnenko.se.command.project.ProjectClearCommand"/>
+    <bean id="projectCreateCommand" class="ru.volnenko.se.command.project.ProjectCreateCommand"/>
+    <bean id="projectListCommand" class="ru.volnenko.se.command.project.ProjectListCommand"/>
+    <bean id="projectRemoveCommand" class="ru.volnenko.se.command.project.ProjectRemoveCommand"/>
+    <bean id="taskClearCommand" class="ru.volnenko.se.command.task.TaskClearCommand"/>
+    <bean id="taskCreateCommand" class="ru.volnenko.se.command.task.TaskCreateCommand"/>
+    <bean id="taskListCommand" class="ru.volnenko.se.command.task.TaskListCommand"/>
+    <bean id="taskRemoveCommand" class="ru.volnenko.se.command.task.TaskRemoveCommand"/>
+  </util:set>
+</beans>

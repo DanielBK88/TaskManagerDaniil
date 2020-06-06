@@ -7,13 +7,13 @@ import java.util.*;
 /**
  * @author Denis Volnenko
  */
-public final class ProjectRepository implements ru.volnenko.se.api.repository.IProjectRepository {
+public class ProjectRepository implements ru.volnenko.se.api.repository.IProjectRepository {
 
     private final Map<String, Project> map = new LinkedHashMap<>();
 
     @Override
     public Project createProject(final String name) {
-        final Project project = new Project();
+        final Project project = getProject();
         project.setName(name);
         merge(project);
         return project;
@@ -75,6 +75,10 @@ public final class ProjectRepository implements ru.volnenko.se.api.repository.IP
     @Override
     public void clear() {
         map.clear();
+    }
+    
+    protected Project getProject() {
+        return null; // to be overridden by Spring
     }
 
 }

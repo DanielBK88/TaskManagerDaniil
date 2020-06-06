@@ -13,7 +13,7 @@ import java.nio.file.Files;
 /**
  * @author Denis Volnenko
  */
-public final class DataJsonSaveCommand extends AbstractCommand {
+public class DataJsonSaveCommand extends AbstractCommand {
 
     @Override
     public String command() {
@@ -28,7 +28,7 @@ public final class DataJsonSaveCommand extends AbstractCommand {
     @Override
     public void execute() throws Exception {
         System.out.println("[DATA JSON SAVE]");
-        final Domain domain = new Domain();
+        Domain domain = getDomain();
         bootstrap.getDomainService().export(domain);
         final ObjectMapper objectMapper = new ObjectMapper();
         final ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
@@ -37,6 +37,10 @@ public final class DataJsonSaveCommand extends AbstractCommand {
         final File file = new File(DataConstant.FILE_JSON);
         Files.write(file.toPath(), data);
         System.out.println("[OK]");
+    }
+
+    public Domain getDomain() {
+        return null; // To be overridden by Spring
     }
 
 }

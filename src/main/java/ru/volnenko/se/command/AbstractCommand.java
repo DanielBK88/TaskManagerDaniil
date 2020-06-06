@@ -1,14 +1,14 @@
 package ru.volnenko.se.command;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.volnenko.se.controller.Bootstrap;
-
-import java.io.IOException;
 
 /**
  * @author Denis Volnenko
  */
 public abstract class AbstractCommand {
 
+    @Autowired
     protected Bootstrap bootstrap;
 
     public Bootstrap getBootstrap() {
