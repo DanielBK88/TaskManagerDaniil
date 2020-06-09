@@ -1,5 +1,8 @@
 package ru.volnenko.se.repository;
 
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.stereotype.Repository;
+import ru.volnenko.se.api.repository.IProjectRepository;
 import ru.volnenko.se.entity.Project;
 
 import java.util.*;
@@ -7,7 +10,8 @@ import java.util.*;
 /**
  * @author Denis Volnenko
  */
-public class ProjectRepository implements ru.volnenko.se.api.repository.IProjectRepository {
+@Repository
+public class ProjectRepository implements IProjectRepository {
 
     private final Map<String, Project> map = new LinkedHashMap<>();
 
@@ -77,6 +81,7 @@ public class ProjectRepository implements ru.volnenko.se.api.repository.IProject
         map.clear();
     }
     
+    @Lookup
     protected Project getProject() {
         return null; // to be overridden by Spring
     }

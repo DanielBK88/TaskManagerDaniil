@@ -5,15 +5,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Denis Volnenko
  */
-
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Task implements Serializable{
-
-//    private static final long serialVersionUID = 1L;
 
     private String id = UUID.randomUUID().toString();
 
@@ -28,16 +30,6 @@ public final class Task implements Serializable{
     public void test() {
         System.out.println("HELLO");
     }
-
-//    public Long test = 11L;
-
-//    public String orderIndex = Long.toString(System.currentTimeMillis());
-//    public Long orderIndex = System.currentTimeMillis();
-
-//    private String test() {
-//        return "";
-//    }
-
 
     public String getId() {
         return id;

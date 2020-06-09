@@ -3,18 +3,25 @@ package ru.volnenko.se.command.data.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.stereotype.Component;
 import ru.volnenko.se.command.AbstractCommand;
 import ru.volnenko.se.constant.DataConstant;
 import ru.volnenko.se.entity.Domain;
 
 import java.io.File;
 import java.nio.file.Files;
+import ru.volnenko.se.service.DomainService;
 
 /**
  * @author Denis Volnenko
  */
+@Component
 public class DataJsonSaveCommand extends AbstractCommand {
 
+    private DomainService domainService;
+    
     @Override
     public String command() {
         return "data-json-save";
@@ -29,7 +36,7 @@ public class DataJsonSaveCommand extends AbstractCommand {
     public void execute() throws Exception {
         System.out.println("[DATA JSON SAVE]");
         Domain domain = getDomain();
-        bootstrap.getDomainService().export(domain);
+        domainService.export(domain);
         final ObjectMapper objectMapper = new ObjectMapper();
         final ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         final String json = objectWriter.writeValueAsString(domain);
@@ -39,8 +46,14 @@ public class DataJsonSaveCommand extends AbstractCommand {
         System.out.println("[OK]");
     }
 
+    @Lookup
     public Domain getDomain() {
         return null; // To be overridden by Spring
     }
 
+    @Autowired
+    public void setDomainService(DomainService domainService) {
+        this.domainService = domainService;
+    }
+    
 }

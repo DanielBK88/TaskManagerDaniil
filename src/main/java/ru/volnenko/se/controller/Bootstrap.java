@@ -1,11 +1,7 @@
 package ru.volnenko.se.controller;
 
-import ru.volnenko.se.api.repository.IProjectRepository;
-import ru.volnenko.se.api.repository.ITaskRepository;
-import ru.volnenko.se.api.service.IDomainService;
-import ru.volnenko.se.api.service.IProjectService;
-import ru.volnenko.se.api.service.ITaskService;
-import ru.volnenko.se.api.service.ServiceLocator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import ru.volnenko.se.command.*;
 import ru.volnenko.se.error.CommandAbsentException;
 import ru.volnenko.se.error.CommandCorruptException;
@@ -15,61 +11,12 @@ import java.util.*;
 /**
  * @author Denis Volnenko
  */
-public final class Bootstrap implements ServiceLocator {
-
-    private ITaskRepository taskRepository;
-
-    private IProjectRepository projectRepository;
-
-    private IProjectService projectService;
-
-    private ITaskService taskService;
-
-    private IDomainService domainService;
+@Controller
+public final class Bootstrap {
 
     private final Map<String, AbstractCommand> commands = new LinkedHashMap<>();
 
-    private final Scanner scanner = new Scanner(System.in);
-
-    public ITaskRepository getTaskRepository() {
-        return taskRepository;
-    }
-
-    public IProjectRepository getProjectRepository() {
-        return projectRepository;
-    }
-
-    public IProjectService getProjectService() {
-        return projectService;
-    }
-
-    public ITaskService getTaskService() {
-        return taskService;
-    }
-
-    public IDomainService getDomainService() {
-        return domainService;
-    }
-
-    public void setTaskRepository(ITaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
-    }
-
-    public void setProjectRepository(IProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
-    }
-
-    public void setProjectService(IProjectService projectService) {
-        this.projectService = projectService;
-    }
-
-    public void setTaskService(ITaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    public void setDomainService(IDomainService domainService) {
-        this.domainService = domainService;
-    }
+    private Scanner scanner;
 
     public void registry(final AbstractCommand command) {
         final String cliCommand = command.command();
@@ -118,22 +65,9 @@ public final class Bootstrap implements ServiceLocator {
         abstractCommand.execute();
     }
 
-    public List<AbstractCommand> getListCommand() {
-        return new ArrayList<>(commands.values());
-    }
-
-    public String nextLine() {
-        return scanner.nextLine();
-    }
-
-    public Integer nextInteger() {
-        final String value = nextLine();
-        if (value == null || value.isEmpty()) return null;
-        try {
-            return Integer.parseInt(value);
-        } catch (Exception e) {
-            return null;
-        }
+    @Autowired
+    public void setScanner(Scanner scanner) {
+        this.scanner = scanner;
     }
 
 }

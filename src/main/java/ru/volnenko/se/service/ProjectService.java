@@ -1,6 +1,9 @@
 package ru.volnenko.se.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.volnenko.se.api.repository.IProjectRepository;
+import ru.volnenko.se.api.service.IProjectService;
 import ru.volnenko.se.entity.Project;
 
 import java.util.Collection;
@@ -9,10 +12,12 @@ import java.util.List;
 /**
  * @author Denis Volnenko
  */
-public final class ProjectService implements ru.volnenko.se.api.service.IProjectService {
+@Service
+public final class ProjectService implements IProjectService {
 
-    private final IProjectRepository projectRepository;
+    private IProjectRepository projectRepository;
 
+    @Autowired
     public ProjectService(final IProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
     }
@@ -55,6 +60,9 @@ public final class ProjectService implements ru.volnenko.se.api.service.IProject
 
     @Override
     public void load(Collection<Project> projects) {
+        if (projects == null || projects.isEmpty()) {
+            return;
+        }
         projectRepository.load(projects);
     }
 

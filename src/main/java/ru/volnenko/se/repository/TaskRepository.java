@@ -1,5 +1,8 @@
 package ru.volnenko.se.repository;
 
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.stereotype.Repository;
+import ru.volnenko.se.api.repository.ITaskRepository;
 import ru.volnenko.se.entity.Task;
 
 import java.util.*;
@@ -7,7 +10,8 @@ import java.util.*;
 /**
  * @author Denis Volnenko
  */
-public class TaskRepository implements ru.volnenko.se.api.repository.ITaskRepository {
+@Repository
+public class TaskRepository implements ITaskRepository {
 
     private final Map<String, Task> map = new LinkedHashMap<>();
 
@@ -84,6 +88,7 @@ public class TaskRepository implements ru.volnenko.se.api.repository.ITaskReposi
         map.clear();
     }
     
+    @Lookup
     protected Task getTask() {
         return null; // To be overridden by Spring
     }

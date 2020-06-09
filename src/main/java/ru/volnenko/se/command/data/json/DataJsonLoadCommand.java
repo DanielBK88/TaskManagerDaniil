@@ -1,18 +1,24 @@
 package ru.volnenko.se.command.data.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.volnenko.se.command.AbstractCommand;
 import ru.volnenko.se.constant.DataConstant;
 import ru.volnenko.se.entity.Domain;
 
 import java.io.File;
 import java.nio.file.Files;
+import ru.volnenko.se.service.DomainService;
 
 /**
  * @author Denis Volnenko
  */
+@Component
 public final class DataJsonLoadCommand extends AbstractCommand {
 
+    private DomainService domainService;
+    
     @Override
     public String command() {
         return "data-json-load";
@@ -32,7 +38,7 @@ public final class DataJsonLoadCommand extends AbstractCommand {
         final String json = new String(bytes, "UTF-8");
         final ObjectMapper objectMapper = new ObjectMapper();
         final Domain domain = objectMapper.readValue(json, Domain.class);
-        bootstrap.getDomainService().load(domain);
+        domainService.load(domain);
         System.out.println("[OK]");
     }
 
@@ -41,6 +47,11 @@ public final class DataJsonLoadCommand extends AbstractCommand {
         final boolean check = file.exists();
         if (!check) System.out.println("FILE NOT FOUND");
         return check;
+    }
+
+    @Autowired
+    public void setDomainService(DomainService domainService) {
+        this.domainService = domainService;
     }
 
 }

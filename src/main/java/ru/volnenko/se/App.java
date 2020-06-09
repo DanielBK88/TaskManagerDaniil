@@ -1,22 +1,33 @@
 package ru.volnenko.se;
 
+import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import ru.volnenko.se.command.AbstractCommand;
 import ru.volnenko.se.controller.Bootstrap;
 
+@Configuration
+@ComponentScan
 public class App {
 
     private static Set<AbstractCommand> commands;
 
     public static void main(String[] args) throws Exception {
-        ApplicationContext context = new ClassPathXmlApplicationContext("config.xml");
+        ApplicationContext context = new AnnotationConfigApplicationContext(App.class);
         
         final Bootstrap bootstrap = context.getBean(Bootstrap.class);
-        commands = (Set<AbstractCommand>) context.getBean("commands");
+        commands = new HashSet<>(context.getBeansOfType(AbstractCommand.class).values());
         bootstrap.init(commands);
+    }
+    
+    @Bean
+    public Scanner scanner() {
+        return new Scanner(System.in);
     }
 
 }

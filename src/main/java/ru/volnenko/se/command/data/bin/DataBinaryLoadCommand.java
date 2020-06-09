@@ -1,5 +1,7 @@
 package ru.volnenko.se.command.data.bin;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.volnenko.se.command.AbstractCommand;
 import ru.volnenko.se.constant.DataConstant;
 import ru.volnenko.se.entity.Project;
@@ -7,11 +9,18 @@ import ru.volnenko.se.entity.Task;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import ru.volnenko.se.service.ProjectService;
+import ru.volnenko.se.service.TaskService;
 
 /**
  * @author Denis Volnenko
  */
+@Component
 public final class DataBinaryLoadCommand extends AbstractCommand {
+    
+    private ProjectService projectService;
+    
+    private TaskService taskService;
 
     @Override
     public String command() {
@@ -38,13 +47,23 @@ public final class DataBinaryLoadCommand extends AbstractCommand {
     private void loadProjects(final Object value) {
         if (!(value instanceof Project[])) return;
         final Project[] projects = (Project[]) value;
-        bootstrap.getProjectService().load(projects);
+        projectService.load(projects);
     }
 
     private void loadTasks(final Object value) {
         if (!(value instanceof Task[])) return;
         final Task[] tasks = (Task[]) value;
-        bootstrap.getTaskService().load(tasks);
+        taskService.load(tasks);
+    }
+
+    @Autowired
+    public void setProjectService(ProjectService projectService) {
+        this.projectService = projectService;
+    }
+
+    @Autowired
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
 }
