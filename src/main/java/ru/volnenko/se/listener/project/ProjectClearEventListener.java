@@ -1,16 +1,17 @@
-package ru.volnenko.se.command.project;
+package ru.volnenko.se.listener.project;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ru.volnenko.se.command.AbstractCommand;
-import ru.volnenko.se.repository.ProjectRepository;
+import ru.volnenko.se.event.CommandEvent;
+import ru.volnenko.se.listener.AbstractEventListener;
 import ru.volnenko.se.service.ProjectService;
 
 /**
  * @author Denis Volnenko
  */
 @Component
-public final class ProjectClearCommand extends AbstractCommand {
+public final class ProjectClearEventListener extends AbstractEventListener {
 
     private ProjectService projectService;
     
@@ -25,7 +26,8 @@ public final class ProjectClearCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
+    @EventListener(condition = "#event.command == 'project-clear'")
+    public void execute(CommandEvent event) {
         projectService.clear();
         System.out.println("[ALL PROJECTS REMOVED]");
     }

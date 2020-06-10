@@ -1,15 +1,17 @@
-package ru.volnenko.se.command.task;
+package ru.volnenko.se.listener.task;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ru.volnenko.se.command.AbstractCommand;
+import ru.volnenko.se.event.CommandEvent;
+import ru.volnenko.se.listener.AbstractEventListener;
 import ru.volnenko.se.service.TaskService;
 
 /**
  * @author Denis Volnenko
  */
 @Component
-public final class TaskClearCommand extends AbstractCommand {
+public final class TaskClearEventListener extends AbstractEventListener {
 
     private TaskService taskService;
     
@@ -24,7 +26,8 @@ public final class TaskClearCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
+    @EventListener(condition = "#event.command == 'task-clear'")
+    public void execute(CommandEvent event) {
         taskService.clear();
         System.out.println("[ALL TASK REMOVED]");
     }

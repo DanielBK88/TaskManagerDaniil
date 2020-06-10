@@ -1,8 +1,10 @@
-package ru.volnenko.se.command.project;
+package ru.volnenko.se.listener.project;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ru.volnenko.se.command.AbstractCommand;
+import ru.volnenko.se.event.CommandEvent;
+import ru.volnenko.se.listener.AbstractEventListener;
 import ru.volnenko.se.entity.Project;
 import ru.volnenko.se.service.ProjectService;
 
@@ -10,7 +12,7 @@ import ru.volnenko.se.service.ProjectService;
  * @author Denis Volnenko
  */
 @Component
-public final class ProjectListCommand extends AbstractCommand {
+public final class ProjectListEventListener extends AbstractEventListener {
     
     private ProjectService projectService;
 
@@ -25,7 +27,8 @@ public final class ProjectListCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
+    @EventListener(condition = "#event.command == 'project-list'")
+    public void execute(CommandEvent event) {
         System.out.println("[PROJECT LIST]");
         int index = 1;
         for (Project project: projectService.getListProject()) {

@@ -1,13 +1,15 @@
-package ru.volnenko.se.command.task;
+package ru.volnenko.se.listener.task;
 
 import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.volnenko.se.command.AbstractCommand;
+import org.springframework.context.event.EventListener;
+import ru.volnenko.se.event.CommandEvent;
+import ru.volnenko.se.listener.AbstractEventListener;
 
 /**
  * @author Denis Volnenko
  */
-public final class TaskRemoveCommand extends AbstractCommand {
+public final class TaskRemoveCommand extends AbstractEventListener {
     
     private Scanner scanner;
 
@@ -22,7 +24,8 @@ public final class TaskRemoveCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() {
+    @EventListener(condition = "#event.command == 'task-remove'")
+    public void execute(CommandEvent event) {
         System.out.println("[REMOVING TASK]");
         System.out.println("Enter task order index:");
         final Integer orderIndex = nextInteger();

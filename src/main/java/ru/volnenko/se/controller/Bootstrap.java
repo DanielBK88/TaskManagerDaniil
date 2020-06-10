@@ -1,8 +1,12 @@
 package ru.volnenko.se.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Controller;
-import ru.volnenko.se.command.*;
+import ru.volnenko.se.api.service.IScannerService;
+import ru.volnenko.se.event.CommandEvent;
+import ru.volnenko.se.listener.*;
 import ru.volnenko.se.error.CommandAbsentException;
 import ru.volnenko.se.error.CommandCorruptException;
 
@@ -12,13 +16,15 @@ import java.util.*;
  * @author Denis Volnenko
  */
 @Controller
-public final class Bootstrap {
+public final class Bootstrap implements ApplicationEventPublisherAware {
 
-    private final Map<String, AbstractCommand> commands = new LinkedHashMap<>();
+    private final Map<String, AbstractEventListener> commands = new LinkedHashMap<>();
 
-    private Scanner scanner;
+    private IScannerService scannerService;
+    
+    private ApplicationEventPublisher publisher;
 
-    public void registry(final AbstractCommand command) {
+    public void registry(final AbstractEventListener command) {
         final String cliCommand = command.command();
         final String cliDescription = command.description();
         if (cliCommand == null || cliCommand.isEmpty()) throw new CommandCorruptException();
@@ -31,9 +37,9 @@ public final class Bootstrap {
     }
 
     public void registry(final Class clazz) throws IllegalAccessException, InstantiationException {
-        if (!AbstractCommand.class.isAssignableFrom(clazz)) return;
+        if (!AbstractEventListener.class.isAssignableFrom(clazz)) return;
         final Object command = clazz.newInstance();
-        final AbstractCommand abstractCommand = (AbstractCommand) command;
+        final AbstractEventListener abstractCommand = (AbstractEventListener) command;
         registry(abstractCommand);
     }
 
@@ -43,7 +49,7 @@ public final class Bootstrap {
         start();
     }
     
-    public void init(final Collection<AbstractCommand> commands) throws Exception {
+    public void init(final Collection<AbstractEventListener> commands) throws Exception {
         if (commands == null || commands.isEmpty()) throw new CommandAbsentException();
         commands.forEach(this::registry);
         start();
@@ -53,21 +59,21 @@ public final class Bootstrap {
         System.out.println("*** WELCOME TO TASK MANAGER ***");
         String command = "";
         while (!"exit".equals(command)) {
-            command = scanner.nextLine();
-            execute(command);
+            command = scannerService.readInputAndDoTask("Enter command: ", c -> {
+                publisher.publishEvent(new CommandEvent(this, c));
+            });
+            Thread.sleep(500L); // Give command-threads a chance to take over the scanner ...
         }
     }
 
-    private void execute(final String command) throws Exception {
-        if (command == null || command.isEmpty()) return;
-        final AbstractCommand abstractCommand = commands.get(command);
-        if (abstractCommand == null) return;
-        abstractCommand.execute();
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
     }
 
     @Autowired
-    public void setScanner(Scanner scanner) {
-        this.scanner = scanner;
+    public void setScannerService(IScannerService scannerService) {
+        this.scannerService = scannerService;
     }
 
 }

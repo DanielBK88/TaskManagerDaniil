@@ -1,10 +1,12 @@
-package ru.volnenko.se.command.data.xml;
+package ru.volnenko.se.listener.data.xml;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ru.volnenko.se.command.AbstractCommand;
+import ru.volnenko.se.event.CommandEvent;
+import ru.volnenko.se.listener.AbstractEventListener;
 import ru.volnenko.se.constant.DataConstant;
 import ru.volnenko.se.entity.Domain;
 
@@ -16,7 +18,7 @@ import ru.volnenko.se.service.DomainService;
  * @author Denis Volnenko
  */
 @Component
-public final class DataXmlLoadCommand extends AbstractCommand {
+public final class DataXmlLoadEventListener extends AbstractEventListener {
 
     private DomainService domainService;
     
@@ -31,7 +33,8 @@ public final class DataXmlLoadCommand extends AbstractCommand {
     }
 
     @Override
-    public void execute() throws Exception {
+    @EventListener(condition = "#event.command == 'data-sml-load'")
+    public void execute(CommandEvent event) throws Exception {
         System.out.println("[LOAD XML DATA]");
         final File file = new File(DataConstant.FILE_XML);
         if (!exists(file)) return;
