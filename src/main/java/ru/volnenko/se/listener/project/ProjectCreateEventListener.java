@@ -4,10 +4,11 @@ import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ru.volnenko.se.api.service.IScannerService;
+import ru.volnenko.se.api.service.IDomainService;
+import ru.volnenko.se.api.service.IProjectService;
+import ru.volnenko.se.entity.Domain;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.AbstractEventListener;
-import ru.volnenko.se.service.ProjectService;
 
 /**
  * @author Denis Volnenko
@@ -15,9 +16,14 @@ import ru.volnenko.se.service.ProjectService;
 @Component
 public final class ProjectCreateEventListener extends AbstractEventListener {
 
-    private ProjectService projectService;
+    @Autowired
+    private IProjectService projectService;
     
-    private IScannerService scannerService;
+    @Autowired
+    private IDomainService domainService;
+    
+    @Autowired
+    private Scanner scanner;
     
     @Override
     public String description() {
@@ -32,21 +38,18 @@ public final class ProjectCreateEventListener extends AbstractEventListener {
     @Override
     @EventListener(condition = "#event.command == 'project-create'")
     public void execute(CommandEvent event) {
-        scannerService.readInputAndDoTask("[PROJECT CREATE]\nENTER NAME:", name -> {
-            projectService.createProject(name);
-            System.out.println("Project " + name + " created successfully");
-            System.out.println();
-        });
-    }
-
-    @Autowired
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
-    }
-
-    @Autowired
-    public void setScannerService(IScannerService scannerService) {
-        this.scannerService = scannerService;
+        System.out.println("[PROJECT CREATE]");
+        System.out.println("ENTER PROJECT NAME:");
+        String projectName = scanner.nextLine();
+        System.out.println("ENTER DOMAIN NAME (will be created, if not existing!):");
+        String domainName = scanner.nextLine();
+        Domain domain = domainService.findByName(domainName);
+        if (domain == null) {
+            domain = domainService.createDomain(domainName);
+        }
+        projectService.createProject(projectName, domainName);
+        System.out.println("Project " + projectName + " created successfully for domain " + domainName);
+        System.out.println();
     }
 
 }

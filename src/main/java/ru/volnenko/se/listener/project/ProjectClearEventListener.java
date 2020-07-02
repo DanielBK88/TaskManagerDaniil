@@ -3,9 +3,9 @@ package ru.volnenko.se.listener.project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import ru.volnenko.se.api.service.IProjectService;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.AbstractEventListener;
-import ru.volnenko.se.service.ProjectService;
 
 /**
  * @author Denis Volnenko
@@ -13,7 +13,8 @@ import ru.volnenko.se.service.ProjectService;
 @Component
 public final class ProjectClearEventListener extends AbstractEventListener {
 
-    private ProjectService projectService;
+    @Autowired
+    private IProjectService projectService;
     
     @Override
     public String command() {
@@ -30,11 +31,6 @@ public final class ProjectClearEventListener extends AbstractEventListener {
     public void execute(CommandEvent event) {
         projectService.clear();
         System.out.println("[ALL PROJECTS REMOVED]");
-    }
-
-    @Autowired
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
     }
 
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import ru.volnenko.se.api.service.IDomainService;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.AbstractEventListener;
 import ru.volnenko.se.constant.DataConstant;
@@ -11,7 +12,6 @@ import ru.volnenko.se.entity.Domain;
 
 import java.io.File;
 import java.nio.file.Files;
-import ru.volnenko.se.service.DomainService;
 
 /**
  * @author Denis Volnenko
@@ -19,7 +19,8 @@ import ru.volnenko.se.service.DomainService;
 @Component
 public final class DataJsonLoadEventListener extends AbstractEventListener {
 
-    private DomainService domainService;
+    @Autowired
+    private IDomainService domainService;
     
     @Override
     public String command() {
@@ -41,7 +42,7 @@ public final class DataJsonLoadEventListener extends AbstractEventListener {
         final String json = new String(bytes, "UTF-8");
         final ObjectMapper objectMapper = new ObjectMapper();
         final Domain domain = objectMapper.readValue(json, Domain.class);
-        domainService.load(domain);
+        domainService.merge(domain);
         System.out.println("[OK]");
     }
 
@@ -50,11 +51,6 @@ public final class DataJsonLoadEventListener extends AbstractEventListener {
         final boolean check = file.exists();
         if (!check) System.out.println("FILE NOT FOUND");
         return check;
-    }
-
-    @Autowired
-    public void setDomainService(DomainService domainService) {
-        this.domainService = domainService;
     }
 
 }

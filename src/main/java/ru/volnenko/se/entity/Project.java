@@ -1,74 +1,62 @@
 package ru.volnenko.se.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.util.List;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 /**
  * @author Denis Volnenko
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Entity
+@Table(name = "TMNG_PROJECT")
+@NoArgsConstructor
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Project implements Serializable {
 
-    private String id = UUID.randomUUID().toString();
-
+    @Id
+    @Column(name = "PROJECT_NAME")
     private String name = "";
 
-    private Date dateBegin;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "DOMAIN_ID")
+    private Domain domain;
 
-    private Date dateEnd;
+    @Column(name = "DATE_BEGIN")
+    private LocalDate dateBegin;
 
-    private Date created = new Date();
+    @Column(name = "DATE_END")
+    private LocalDate dateEnd;
 
-    public void test() {
-        System.out.println("HELLO");
-    }
+    @Column(name = "DATE_CREATED")
+    private LocalDate created = LocalDate.now();
 
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Date getDateBegin() {
-        return dateBegin;
-    }
-
-    public void setDateBegin(Date dateBegin) {
-        this.dateBegin = dateBegin;
-    }
-
-    public Date getDateEnd() {
-        return dateEnd;
-    }
-
-    public void setDateEnd(Date dateEnd) {
-        this.dateEnd = dateEnd;
-    }
-
+    @JacksonXmlElementWrapper(localName = "tasks")
+    @JacksonXmlProperty(localName = "task")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SELECT)
+    private List<Task> tasks;
+    
 }

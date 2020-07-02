@@ -4,10 +4,11 @@ import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import ru.volnenko.se.api.service.IScannerService;
+import ru.volnenko.se.api.service.IProjectService;
+import ru.volnenko.se.api.service.ITaskService;
+import ru.volnenko.se.entity.Project;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.AbstractEventListener;
-import ru.volnenko.se.service.TaskService;
 
 /**
  * @author Denis Volnenko
@@ -15,9 +16,14 @@ import ru.volnenko.se.service.TaskService;
 @Component
 public final class TaskCreateEventListener extends AbstractEventListener {
     
-    private TaskService taskService;
+    @Autowired
+    private ITaskService taskService;
     
-    private IScannerService scannerService;
+    @Autowired
+    private IProjectService projectService;
+    
+    @Autowired
+    private Scanner scanner;
 
     @Override
     public String command() {
@@ -32,21 +38,19 @@ public final class TaskCreateEventListener extends AbstractEventListener {
     @Override
     @EventListener(condition = "#event.command == 'task-create'")
     public void execute(CommandEvent event) {
-        scannerService.readInputAndDoTask("[TASK CREATE]\nENTER NAME:", name -> {
-            taskService.createTask(name);
-            System.out.println("Task " + name + " created successfully");
-            System.out.println();
-        });
-    }
-
-    @Autowired
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    @Autowired
-    public void setScannerService(IScannerService scannerService) {
-        this.scannerService = scannerService;
+        System.out.println("[TASK CREATE]");
+        System.out.println("ENTER TASK NAME:");
+        String taskName = scanner.nextLine();
+        System.out.println("ENTER PROJECT NAME:");
+        String projectName = scanner.nextLine();
+        Project project = projectService.getProjectById(projectName);
+        if (project == null) {
+            System.out.println("A project with this name does not exist!");
+            return;
+        }
+        taskService.createTaskByProject(project.getName(), taskName);
+        System.out.println("Task " + taskName + " created successfully");
+        System.out.println();
     }
 
 }

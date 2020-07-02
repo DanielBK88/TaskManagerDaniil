@@ -1,7 +1,13 @@
 package ru.volnenko.se.service;
 
+import java.util.List;
+import javax.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.volnenko.se.api.repository.IDomainRepository;
+import ru.volnenko.se.api.repository.IProjectRepository;
+import ru.volnenko.se.api.repository.ITaskRepository;
 import ru.volnenko.se.api.service.IDomainService;
 import ru.volnenko.se.entity.Domain;
 
@@ -9,34 +15,56 @@ import ru.volnenko.se.entity.Domain;
  * @author Denis Volnenko
  */
 @Service
+@Transactional
 public final class DomainService implements IDomainService {
     
-    private ProjectService projectService;
+    @Autowired
+    private IProjectRepository projectRepository;
     
-    private TaskService taskService;
+    @Autowired
+    private ITaskRepository taskRepository;
+    
+    @Autowired
+    private IDomainRepository domainRepository;
 
     @Override
-    public void load(final Domain domain) {
-        if (domain == null) return;
-        projectService.load(domain.getProjects());
-        taskService.load(domain.getTasks());
+    @Transactional
+    public void merge(Domain domain) {
+        if (domain == null) {
+            throw new IllegalArgumentException("The domain to merge is null!");
+        }
+        domainRepository.save(domain);
     }
 
     @Override
-    public void export(final Domain domain) {
-        if (domain == null) return;
-        domain.setProjects(projectService.getListProject());
-        domain.setTasks(taskService.getListTask());
+    public Domain createDomain(String name) {
+        if(StringUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Invalid name of domain to create!");
+        }
+        Domain domain = new Domain();
+        domain.setName(name);
+        return domainRepository.save(domain);
     }
 
-    @Autowired
-    public void setProjectService(ProjectService projectService) {
-        this.projectService = projectService;
+    @Override
+    public void removeByName(String name) {
+        if(StringUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Invalid name of domain to remove!");
+        }
+        domainRepository.deleteById(name);
     }
 
-    @Autowired
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
+    @Override
+    public List<Domain> findAll() {
+        return domainRepository.findAll();
+    }
+
+    @Override
+    public Domain findByName(String name) {
+        if(StringUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Invalid name of domain to find!");
+        }
+        return domainRepository.findById(name).orElse(null);
     }
 
 }

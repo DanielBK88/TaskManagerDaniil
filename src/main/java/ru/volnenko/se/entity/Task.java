@@ -1,74 +1,50 @@
 package ru.volnenko.se.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Denis Volnenko
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Entity
+@Table(name = "TMNG_TASK")
+@NoArgsConstructor
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Task implements Serializable{
 
-    private String id = UUID.randomUUID().toString();
-
-    private String projectId;
-
+    @Id
+    @Column(name = "TASK_NAME")
     private String name = "";
 
-    private Date dateBegin;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "PROJECT_ID")
+    private Project project;
 
-    private Date dateEnd;
+    @Column(name = "DATE_BEGIN")
+    private LocalDate dateBegin;
+
+    @Column(name = "DATE_END")
+    private LocalDate dateEnd;
 
     public void test() {
         System.out.println("HELLO");
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Date getDateBegin() {
-        return dateBegin;
-    }
-
-    public void setDateBegin(Date dateBegin) {
-        this.dateBegin = dateBegin;
-    }
-
-    public Date getDateEnd() {
-        return dateEnd;
-    }
-
-    public void setDateEnd(Date dateEnd) {
-        this.dateEnd = dateEnd;
-    }
-
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
     }
 
 }

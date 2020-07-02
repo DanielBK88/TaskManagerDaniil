@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Controller;
-import ru.volnenko.se.api.service.IScannerService;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.*;
 import ru.volnenko.se.error.CommandAbsentException;
@@ -20,7 +19,8 @@ public final class Bootstrap implements ApplicationEventPublisherAware {
 
     private final Map<String, AbstractEventListener> commands = new LinkedHashMap<>();
 
-    private IScannerService scannerService;
+    @Autowired
+    private Scanner scanner;
     
     private ApplicationEventPublisher publisher;
 
@@ -59,21 +59,15 @@ public final class Bootstrap implements ApplicationEventPublisherAware {
         System.out.println("*** WELCOME TO TASK MANAGER ***");
         String command = "";
         while (!"exit".equals(command)) {
-            command = scannerService.readInputAndDoTask("Enter command: ", c -> {
-                publisher.publishEvent(new CommandEvent(this, c));
-            });
-            Thread.sleep(500L); // Give command-threads a chance to take over the scanner ...
+            System.out.println("Enter command: ");
+            command = scanner.nextLine();
+            publisher.publishEvent(new CommandEvent(this, command));
         }
     }
 
     @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
-        this.publisher = publisher;
-    }
-
-    @Autowired
-    public void setScannerService(IScannerService scannerService) {
-        this.scannerService = scannerService;
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.publisher = applicationEventPublisher;
     }
 
 }

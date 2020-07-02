@@ -3,9 +3,9 @@ package ru.volnenko.se.listener.task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import ru.volnenko.se.api.service.ITaskService;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.AbstractEventListener;
-import ru.volnenko.se.service.TaskService;
 
 /**
  * @author Denis Volnenko
@@ -13,7 +13,8 @@ import ru.volnenko.se.service.TaskService;
 @Component
 public final class TaskClearEventListener extends AbstractEventListener {
 
-    private TaskService taskService;
+    @Autowired
+    private ITaskService taskService;
     
     @Override
     public String description() {
@@ -30,11 +31,6 @@ public final class TaskClearEventListener extends AbstractEventListener {
     public void execute(CommandEvent event) {
         taskService.clear();
         System.out.println("[ALL TASK REMOVED]");
-    }
-
-    @Autowired
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
     }
 
 }

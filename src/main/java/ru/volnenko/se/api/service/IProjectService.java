@@ -2,7 +2,6 @@ package ru.volnenko.se.api.service;
 
 import ru.volnenko.se.entity.Project;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -10,7 +9,7 @@ import java.util.List;
  */
 public interface IProjectService {
 
-    Project createProject(String name);
+    Project createProject(String name, String domainName);
 
     Project merge(Project project);
 
@@ -23,11 +22,4 @@ public interface IProjectService {
     void clear();
 
     void merge(Project... projects);
-
-    void load(Collection<Project> projects);
-
-    void load(Project... projects);
-
-    Project removeByOrderIndex(Integer orderIndex);
-
 }

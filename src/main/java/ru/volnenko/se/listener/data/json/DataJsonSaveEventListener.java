@@ -3,10 +3,11 @@ package ru.volnenko.se.listener.data.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import ru.volnenko.se.api.service.IDomainService;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.AbstractEventListener;
 import ru.volnenko.se.constant.DataConstant;
@@ -14,7 +15,6 @@ import ru.volnenko.se.entity.Domain;
 
 import java.io.File;
 import java.nio.file.Files;
-import ru.volnenko.se.service.DomainService;
 
 /**
  * @author Denis Volnenko
@@ -22,7 +22,11 @@ import ru.volnenko.se.service.DomainService;
 @Component
 public class DataJsonSaveEventListener extends AbstractEventListener {
 
-    private DomainService domainService;
+    @Autowired
+    private IDomainService domainService;
+    
+    @Autowired
+    private Scanner scanner;
     
     @Override
     public String command() {
@@ -38,8 +42,13 @@ public class DataJsonSaveEventListener extends AbstractEventListener {
     @EventListener(condition = "#event.command == 'data-json-save'")
     public void execute(CommandEvent event) throws Exception {
         System.out.println("[DATA JSON SAVE]");
-        Domain domain = getDomain();
-        domainService.export(domain);
+        System.out.println("Please enter domain name to save:");
+        String domainName = scanner.nextLine();
+        Domain domain = domainService.findByName(domainName);
+        if (domain == null) {
+            System.out.println("Domain not found!");
+            return;
+        }
         final ObjectMapper objectMapper = new ObjectMapper();
         final ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         final String json = objectWriter.writeValueAsString(domain);
@@ -47,16 +56,6 @@ public class DataJsonSaveEventListener extends AbstractEventListener {
         final File file = new File(DataConstant.FILE_JSON);
         Files.write(file.toPath(), data);
         System.out.println("[OK]");
-    }
-
-    @Lookup
-    public Domain getDomain() {
-        return null; // To be overridden by Spring
-    }
-
-    @Autowired
-    public void setDomainService(DomainService domainService) {
-        this.domainService = domainService;
     }
     
 }

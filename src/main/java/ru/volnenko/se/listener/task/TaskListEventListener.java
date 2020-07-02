@@ -2,17 +2,20 @@ package ru.volnenko.se.listener.task;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+import ru.volnenko.se.api.service.ITaskService;
 import ru.volnenko.se.event.CommandEvent;
 import ru.volnenko.se.listener.AbstractEventListener;
 import ru.volnenko.se.entity.Task;
-import ru.volnenko.se.service.TaskService;
 
 /**
  * @author Denis Volnenko
  */
+@Component
 public final class TaskListEventListener extends AbstractEventListener {
     
-    private TaskService taskService;
+    @Autowired
+    private ITaskService taskService;
 
     @Override
     public String command() {
@@ -30,15 +33,11 @@ public final class TaskListEventListener extends AbstractEventListener {
         System.out.println("[TASK LIST]");
         int index = 1;
         for (Task task: taskService.getListTask()) {
-            System.out.println(index + ". " + task.getName());
+            System.out.println(index + ". " + task.getName() + " project: " + task.getProject().getName() 
+                    + " domain: " + task.getProject().getDomain().getName());
             index++;
         }
         System.out.println();
-    }
-
-    @Autowired
-    public void setTaskService(TaskService taskService) {
-        this.taskService = taskService;
     }
 
 }

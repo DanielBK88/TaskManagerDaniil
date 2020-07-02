@@ -1,5 +1,8 @@
 package ru.volnenko.se.service;
 
+import java.util.Arrays;
+import javax.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.volnenko.se.api.repository.IProjectRepository;
@@ -8,94 +11,82 @@ import ru.volnenko.se.api.service.ITaskService;
 import ru.volnenko.se.entity.Project;
 import ru.volnenko.se.entity.Task;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
  * @author Denis Volnenko
  */
 @Service
+@Transactional
 public final class TaskService implements ITaskService {
 
-    private final ITaskRepository taskRepository;
-
-    private final IProjectRepository projectRepository;
-
     @Autowired
-    public TaskService(
-            final ITaskRepository taskRepository,
-            final IProjectRepository projectRepository
-    ) {
-        this.taskRepository = taskRepository;
-        this.projectRepository = projectRepository;
-    }
-
-    @Override
-    public Task createTask(final String name) {
-        if (name == null || name.isEmpty()) return null;
-        return taskRepository.createTask(name);
-    }
+    private ITaskRepository taskRepository;
+    
+    @Autowired
+    private IProjectRepository projectRepository;
 
     @Override
     public Task getTaskById(final String id) {
-        return taskRepository.getTaskById(id);
+        if (StringUtils.isEmpty(id)) {
+            throw new IllegalArgumentException("Invalid task id!");
+        }
+        return taskRepository.findById(id).orElse(null);
     }
 
     @Override
     public Task merge(final Task task) {
-        return taskRepository.merge(task);
+        if (task == null) {
+            throw new IllegalArgumentException("The task to merge is null!");
+        }
+        return taskRepository.save(task);
     }
 
     @Override
     public void removeTaskById(final String id) {
-        taskRepository.removeTaskById(id);
+        if (StringUtils.isEmpty(id)) {
+            throw new IllegalArgumentException("Invalid task id!");
+        }
+        Task task = taskRepository.findById(id).orElse(null);
+        if (task == null) {
+            return;
+        }
+        task.getProject().getTasks().remove(task);
+        taskRepository.delete(task);
     }
 
     @Override
     public List<Task> getListTask() {
-        return taskRepository.getListTask();
+        return taskRepository.findAll();
     }
 
     @Override
     public void clear() {
-        taskRepository.clear();
+        taskRepository.deleteAll();
     }
 
     @Override
     public Task createTaskByProject(final String projectId, final String taskName) {
-        final Project project = projectRepository.getProjectById(projectId);
-        if (project == null) return null;
-        final Task task = taskRepository.createTask(taskName);
-        task.setProjectId(project.getId());
+        if (StringUtils.isEmpty(taskName)) {
+            throw new IllegalArgumentException("Invalid task name!");
+        }
+        final Project project = projectRepository.findById(projectId).orElse(null);
+        if (project == null) {
+            throw new IllegalArgumentException("Could not find a project with id " + projectId + "!");
+        }
+        Task task = new Task();
+        task.setName(taskName);
+        task.setProject(project);
+        taskRepository.save(task);
         return task;
     }
 
     @Override
-    public Task getByOrderIndex(Integer orderIndex) {
-        return taskRepository.getByOrderIndex(orderIndex);
-    }
-
-    @Override
     public void merge(Task... tasks) {
-        taskRepository.merge(tasks);
-    }
-
-    @Override
-    public void load(Task... tasks) {
-        taskRepository.load(tasks);
-    }
-
-    @Override
-    public void load(Collection<Task> tasks) {
-        if (tasks == null || tasks.isEmpty()) {
+        if (tasks.length == 0) {
             return;
         }
-        taskRepository.load(tasks);
-    }
-
-    @Override
-    public void removeTaskByOrderIndex(Integer orderIndex) {
-        taskRepository.removeTaskByOrderIndex(orderIndex);
+        taskRepository.saveAll(Arrays.asList(tasks));
     }
 
 }

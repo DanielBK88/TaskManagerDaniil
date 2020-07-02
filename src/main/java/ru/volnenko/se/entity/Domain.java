@@ -1,39 +1,56 @@
 package ru.volnenko.se.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 /**
  * @author Denis Volnenko
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class Domain {
+@Entity
+@NoArgsConstructor
+@Getter
+@Setter
+@Table(name = "TMNG_DOMAIN")
+public final class Domain implements Serializable {
 
+    @Id
+    @Column(name = "NAME")
+    private String name;
+
+    @JacksonXmlElementWrapper(localName = "projects")
+    @JacksonXmlProperty(localName = "project")
+    @OneToMany(mappedBy = "domain", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SELECT)
     private List<Project> projects = new ArrayList<>();
-
-    private List<Task> tasks = new ArrayList<>();
-
-    public List<Project> getProjects() {
-        return projects;
-    }
-
-    public void setProjects(List<Project> projects) {
-        this.projects = projects;
-    }
-
+    
+    /**
+     * Get all tasks of all projects on this domain
+     **/
+    @JsonIgnore
     public List<Task> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
+        return projects.stream()
+                .flatMap(project -> project.getTasks().stream())
+                .collect(Collectors.toList());
     }
 
 }
